@@ -13,31 +13,46 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // 中间件
 // CORS 配置：允許所有來源（包括 GitHub Pages）
+// 必須在所有路由之前設置
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // 設置 CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
   
   // 處理 OPTIONS 預檢請求
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    return res.status(200).end();
   }
   
   next();
 });
 
+// 使用 cors 包作為備用
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false
+  credentials: false,
+  preflightContinue: false,
+  optionsSuccessStatus: 200
 }));
+
 app.use(express.json());
 
 // ===== API 路由（必须在静态文件服务之前）=====
 // 健康檢查端点
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// OPTIONS 預檢請求處理（明確處理所有 API 路由的 OPTIONS）
+app.options('/api/*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.status(200).end();
 });
 
 // Gemini API 代理端点
