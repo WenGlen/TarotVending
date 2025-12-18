@@ -4,19 +4,23 @@
 
 ### 開發環境
 
-創建 `.env` 文件：
+已自動創建 `.env.local` 文件（不會被提交到 Git）：
 ```
 VITE_API_URL=http://localhost:3000
 ```
 
+此配置會自動使用本地後端服務器（http://localhost:3000）
+
 ### 生產環境
 
-在構建時設定環境變數：
-```bash
-VITE_API_URL=https://your-backend-server.com npm run build
+已自動創建 `.env.production` 文件（會被提交到 Git）：
+```
+VITE_API_URL=https://tarotvending-backend.zeabur.app
 ```
 
-或在部署平台設定環境變數 `VITE_API_URL`
+此配置會在構建生產版本時自動使用 Zeabur 後端服務器。
+
+**注意**：如果您的 Zeabur 後端 URL 不同，請更新 `.env.production` 文件。
 
 ## 🔧 本地開發
 

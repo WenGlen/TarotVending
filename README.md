@@ -19,13 +19,11 @@
    npm install
    ```
 
-2. **設定 API 端點**
-   創建 `.env` 文件：
-   ```
-   VITE_API_URL=http://localhost:3000
-   ```
+2. **環境變數已自動配置**
+   - 本地開發：`.env.local` 已設定為 `http://localhost:3000`
+   - 生產構建：`.env.production` 已設定為 Zeabur 後端 URL
    
-   或者使用後端服務器的 URL（如果後端已部署）
+   **注意**：如果您的後端 URL 不同，請更新對應的環境變數文件
 
 3. **啟動開發服務器**
    ```bash
@@ -57,8 +55,12 @@ src/
 ## ⚙️ 環境變數
 
 - `VITE_API_URL` - 後端 API 服務器 URL（必需）
-  - 開發環境：`http://localhost:3000`
-  - 生產環境：您的後端服務器 URL
+  - 開發環境：`.env.local` 中設定為 `http://localhost:3000`
+  - 生產環境：`.env.production` 中設定為 `https://tarotvending-backend.zeabur.app`
+  
+**文件說明**：
+- `.env.local` - 本地開發配置（不會被提交到 Git）
+- `.env.production` - 生產環境配置（會被提交到 Git）
 
 ## 📄 授權
 
