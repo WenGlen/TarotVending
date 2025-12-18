@@ -1,0 +1,26 @@
+[
+  {
+    "deckId": "guide_direction",
+    "title": "指引方向",
+    "category": "core",
+    "resultTemplateId": "guide_direction_v1",
+    "skinId": "pixel_basic",
+    "isActive": true
+  },
+  {
+    "deckId": "clarify_state",
+    "title": "釐清狀態",
+    "category": "core",
+    "resultTemplateId": "clarify_state_v1",
+    "skinId": "pixel_basic",
+    "isActive": true
+  },
+  {
+    "deckId": "identify_blockage",
+    "title": "看清阻礙",
+    "category": "core",
+    "resultTemplateId": "identify_blockage_v1",
+    "skinId": "pixel_basic",
+    "isActive": true
+  }
+]

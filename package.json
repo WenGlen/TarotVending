@@ -1,0 +1,23 @@
+{
+  "name": "tarotvending",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.js",
+    "dev:server": "NODE_ENV=development node server.js"
+  },
+  "dependencies": {
+    "pinia": "^3.0.4",
+    "vue": "^3.5.24",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "^7.2.4"
+  }
+}
