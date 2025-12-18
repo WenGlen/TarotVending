@@ -25,7 +25,7 @@
         :class="{ selected: deck.deckId === selectedDeckId }"
       >
         <div class="deck-card">
-          牌組
+          <!-- 放牌組的卡背圖 -->
         </div>
   
         <div class="deck-title">

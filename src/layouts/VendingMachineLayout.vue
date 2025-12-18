@@ -1,6 +1,4 @@
 <script setup>
-    import MachineOverlay from '../components/MachineOverlay.vue'
-    
     /**
      * Props
      * activeSection: 'none' | 'product' | 'guide' | 'cards' | 'coin' | 'outlet'
@@ -10,10 +8,6 @@
       activeSection: {
         type: String,
         default: 'none',
-      },
-      showOverlay: {
-        type: Boolean,
-        default: false,
       },
       machineMode: {
         type: String,
@@ -122,13 +116,6 @@
 
         </div>
     
-        <!-- Overlay -->
-        <MachineOverlay :show="showOverlay">
-          <slot name="overlay" />
-        </MachineOverlay>
-
-        
-    
       </div>
 
 
@@ -140,8 +127,7 @@
     <style scoped>
     /* ===== 機台外框 ===== */
     .vending-machine {
-      width: 100%;
-      max-width: 420px;
+      width: 420px;
       margin: 0 auto;
       background: hsl(210, 10%, 50%);
       border-radius: 24px;
@@ -150,6 +136,7 @@
       flex-direction: column;
       gap: 12px;
       position: relative;
+      box-sizing: border-box;
     }
     
     /* ===== 區塊共用基礎 ===== */

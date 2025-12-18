@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, watch } from 'vue'
+  import { ref, computed, watch, nextTick } from 'vue'
   import { onMounted, onUnmounted } from 'vue'
   import { useSessionStore } from './stores/sessionStore'
   import { machineUIMap } from './config/machineUIMap'
@@ -30,6 +30,92 @@
   import FlowDebugPanel from './components/FlowDebugPanel.vue'
 
 const session = useSessionStore()
+
+/* --------------------
+   響應式縮放控制
+-------------------- */
+// 基準寬度（設計稿尺寸）
+const baseWidth = 420
+
+// 視口尺寸
+const viewportWidth = ref(window.innerWidth)
+const viewportHeight = ref(window.innerHeight)
+
+// 容器引用和實際尺寸
+const appContainerRef = ref(null)
+const containerWidth = ref(baseWidth)
+const containerHeight = ref(800)
+
+// 計算縮放比例（取寬高比例的最小值，確保兩個方向都能完整顯示）
+const scale = computed(() => {
+  if (containerWidth.value === 0 || containerHeight.value === 0) return 1
+  const scaleX = viewportWidth.value / containerWidth.value
+  const scaleY = viewportHeight.value / containerHeight.value
+  return Math.min(scaleX, scaleY, 1) // 不超過 1，避免放大
+})
+
+// 更新容器實際尺寸
+function updateContainerSize() {
+  if (appContainerRef.value) {
+    const rect = appContainerRef.value.getBoundingClientRect()
+    const newWidth = rect.width || baseWidth
+    const newHeight = rect.height || 800
+    
+    // 只有當尺寸真的改變時才更新，避免不必要的重新計算
+    if (containerWidth.value !== newWidth || containerHeight.value !== newHeight) {
+      containerWidth.value = newWidth
+      containerHeight.value = newHeight
+    }
+  }
+}
+
+// 更新視口尺寸
+function updateViewportSize() {
+  viewportWidth.value = window.innerWidth
+  viewportHeight.value = window.innerHeight
+  updateContainerSize()
+}
+
+// ResizeObserver 監聽容器尺寸變化
+let resizeObserver = null
+
+// 監聽視窗大小變化
+onMounted(() => {
+  updateViewportSize()
+  
+  // 使用 nextTick 確保 DOM 已渲染
+  nextTick(() => {
+    updateContainerSize()
+    
+    // 使用 ResizeObserver 監聽容器尺寸變化
+    if (appContainerRef.value && window.ResizeObserver) {
+      resizeObserver = new ResizeObserver(() => {
+        updateContainerSize()
+      })
+      resizeObserver.observe(appContainerRef.value)
+    }
+  })
+  
+  // 延遲一下確保 DOM 完全渲染（處理動態內容）
+  setTimeout(() => {
+    updateContainerSize()
+  }, 200)
+  
+  window.addEventListener('resize', updateViewportSize)
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      updateViewportSize()
+    }, 200)
+  })
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  }
+  window.removeEventListener('resize', updateViewportSize)
+  window.removeEventListener('orientationchange', updateViewportSize)
+})
 
 /* --------------------
    Overlay 控制
@@ -355,12 +441,12 @@ const guideText = computed(() => {
 </script>
 
 <template>
-  <VendingMachineLayout
-    :activeSection="uiState.activeSection"
-    :machineMode="uiState.machineMode"
-    :showOverlay="overlayVisible"
-    @outlet-click="handleOutletClick"
-  >
+  <div ref="appContainerRef" class="app-container" :style="{ transform: `translate(-50%, -50%) scale(${scale})` }">
+    <VendingMachineLayout
+      :activeSection="uiState.activeSection"
+      :machineMode="uiState.machineMode"
+      @outlet-click="handleOutletClick"
+    >
   <!-- 商品櫥窗（牌組 + 櫥窗下方按鈕） -->
     <!-- 商品櫥窗（永遠存在） -->
     <template #product>
@@ -423,28 +509,31 @@ const guideText = computed(() => {
   
 
     <template #coin></template>
-    <template #overlay>
-      <IdleOverlay
-        v-if="idleOverlayVisible"
-        @next="goNextFromOverlay"
-      />
-
-      <ThemeOverlay
-        v-else-if="session.status === 'theme_selected'"
-        @start-drag="startCoinDrag"
-      />
-
-      <ShuffleOverlay
-        v-else-if="session.status === 'shuffling'"
-        @submit="handleQuestionSubmit"
-      />
-
-      <CompletedOverlay
-        v-else-if="session.status === 'completed'"
-        @next="goNextFromOverlay"
-      />
-    </template>
   </VendingMachineLayout>
+  </div>
+
+  <!-- 機台遮罩（覆蓋整個畫面） -->
+  <MachineOverlay :show="overlayVisible">
+    <IdleOverlay
+      v-if="idleOverlayVisible"
+      @next="goNextFromOverlay"
+    />
+
+    <ThemeOverlay
+      v-else-if="session.status === 'theme_selected'"
+      @start-drag="startCoinDrag"
+    />
+
+    <ShuffleOverlay
+      v-else-if="session.status === 'shuffling'"
+      @submit="handleQuestionSubmit"
+    />
+
+    <CompletedOverlay
+      v-else-if="session.status === 'completed'"
+      @next="goNextFromOverlay"
+    />
+  </MachineOverlay>
 
   <!-- 結果展示彈窗 -->
   <MachineOverlay 
@@ -467,10 +556,19 @@ const guideText = computed(() => {
     🪙
   </div>
 
-  <FlowDebugPanel />
+  <!-- <FlowDebugPanel /> -->
 </template>
 
 <style scoped>
+.app-container {
+  width: 420px;
+  /* height 由內容決定，不設固定值 */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+}
+
 .floating-coin {
   position: fixed;
   transform: translate(-50%, -50%) scale(1.5 ) ;
