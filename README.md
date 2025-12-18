@@ -1,6 +1,6 @@
 # 🔮 Tarot Vending Machine
 
-一個互動式的塔羅牌占卜應用，使用 Vue 3 + Vite 構建，並整合 Google Gemini API 提供 AI 占卜解讀。
+一個互動式的塔羅牌占卜應用，使用 Vue 3 + Vite 構建。
 
 ## ✨ 功能特色
 
@@ -19,28 +19,22 @@
    npm install
    ```
 
-2. **設定環境變數**
+2. **設定 API 端點**
    創建 `.env` 文件：
    ```
-   GEMINI_API_KEY=your_gemini_api_key
+   VITE_API_URL=http://localhost:3000
    ```
+   
+   或者使用後端服務器的 URL（如果後端已部署）
 
 3. **啟動開發服務器**
    ```bash
-   # 終端 1: 啟動後端
-   npm run dev:server
-   
-   # 終端 2: 啟動前端
    npm run dev
    ```
 
 4. **訪問應用**
    - 前端：http://localhost:5173
-   - 後端 API：http://localhost:3000/api/health
-
-### 部署到 Zeabur
-
-詳細的部署指南請參考 [DEPLOYMENT.md](./DEPLOYMENT.md)
+   - 確保後端 API 服務器正在運行（參考 `../TarotVending-backend/README.md`）
 
 ## 📦 專案結構
 
@@ -58,8 +52,13 @@ src/
 
 - **前端**: Vue 3 + Vite
 - **狀態管理**: Pinia
-- **後端**: Express.js
-- **AI API**: Google Gemini API
+- **後端**: 請參考 `../TarotVending-backend/`
+
+## ⚙️ 環境變數
+
+- `VITE_API_URL` - 後端 API 服務器 URL（必需）
+  - 開發環境：`http://localhost:3000`
+  - 生產環境：您的後端服務器 URL
 
 ## 📄 授權
 

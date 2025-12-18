@@ -1,11 +1,10 @@
 // gemini.js
 
 // 使用後端 API 端点
-// - 開發環境：使用 Vite proxy 連接到本地後端
-// - GitHub Pages：使用 Zeabur 的完整 URL
-// - Zeabur：使用相對路徑（同一個服務）
+// 開發環境：使用 Vite proxy 連接到本地後端（http://localhost:3000）
+// 生產環境：使用環境變數 VITE_API_URL 指定的後端 URL
 const getApiEndpoint = () => {
-  // 如果設定了環境變數，優先使用
+  // 如果設定了環境變數，使用環境變數指定的 URL
   if (import.meta.env.VITE_API_URL) {
     return `${import.meta.env.VITE_API_URL}/api/gemini-chat`
   }
@@ -15,15 +14,8 @@ const getApiEndpoint = () => {
     return '/api/gemini-chat'
   }
   
-  // 生產環境：檢查是否在 GitHub Pages
-  // GitHub Pages 的 hostname 包含 'github.io'
-  if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
-    // GitHub Pages：使用 Zeabur 的完整 URL
-    return 'https://tarotvending.zeabur.app/api/gemini-chat'
-  }
-  
-  // Zeabur 或其他環境：使用相對路徑
-  return '/api/gemini-chat'
+  // 生產環境：如果沒有設定 VITE_API_URL，拋出錯誤
+  throw new Error('請設定 VITE_API_URL 環境變數指向後端 API 服務器')
 }
 
 const GEMINI_ENDPOINT = getApiEndpoint()
