@@ -12,7 +12,12 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // 中间件
-app.use(cors());
+// CORS 配置：允許所有來源（包括 GitHub Pages）
+app.use(cors({
+  origin: '*', // 允許所有來源
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // ===== API 路由（必须在静态文件服务之前）=====

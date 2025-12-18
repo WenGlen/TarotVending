@@ -1,11 +1,32 @@
 // gemini.js
 
-// 使用後端 API 端点（Zeabur 部署時會自動處理）
-// 開發環境：使用 Vite proxy 或直接連接到本地後端
-// 生產環境：使用相對路徑，Zeabur 會自動路由到後端服務
-const GEMINI_ENDPOINT = import.meta.env.DEV 
-  ? '/api/gemini-chat'  // 開發環境：使用 Vite proxy
-  : '/api/gemini-chat'  // 生產環境：相對路徑，由後端服務處理
+// 使用後端 API 端点
+// - 開發環境：使用 Vite proxy 連接到本地後端
+// - GitHub Pages：使用 Zeabur 的完整 URL
+// - Zeabur：使用相對路徑（同一個服務）
+const getApiEndpoint = () => {
+  // 如果設定了環境變數，優先使用
+  if (import.meta.env.VITE_API_URL) {
+    return `${import.meta.env.VITE_API_URL}/api/gemini-chat`
+  }
+  
+  // 開發環境：使用相對路徑（Vite proxy 會處理）
+  if (import.meta.env.DEV) {
+    return '/api/gemini-chat'
+  }
+  
+  // 生產環境：檢查是否在 GitHub Pages
+  // GitHub Pages 的 hostname 包含 'github.io'
+  if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+    // GitHub Pages：使用 Zeabur 的完整 URL
+    return 'https://tarotvending.zeabur.app/api/gemini-chat'
+  }
+  
+  // Zeabur 或其他環境：使用相對路徑
+  return '/api/gemini-chat'
+}
+
+const GEMINI_ENDPOINT = getApiEndpoint()
 
 /**
  * 延遲函數
