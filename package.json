@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:pages": "npm run build && rm -rf docs && mkdir -p docs && cp -r dist/* docs/",
+    "build:pages": "npm run build && rm -rf docs && mkdir -p docs && cp -r dist/* docs/ && cp img/TarotVending-favicon.png docs/",
     "preview": "vite preview",
     "start": "node server.js",
     "dev:server": "NODE_ENV=development node server.js"
