@@ -1,5 +1,5 @@
 <script setup>
-    defineProps({
+    const props = defineProps({
       show: {
         type: Boolean,
         required: true,
@@ -13,7 +13,7 @@
     const emit = defineEmits(['close'])
     
     function onMaskClick() {
-      if (closeOnMask) {
+      if (props.closeOnMask) {
         emit('close')
       }
     }
