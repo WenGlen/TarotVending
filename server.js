@@ -15,6 +15,12 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 app.use(cors());
 app.use(express.json());
 
+// ===== API 路由（必须在静态文件服务之前）=====
+// 健康檢查端点
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Gemini API 代理端点
 app.post('/api/gemini-chat', async (req, res) => {
   if (!GEMINI_API_KEY) {
@@ -67,17 +73,14 @@ app.post('/api/gemini-chat', async (req, res) => {
   }
 });
 
-// 健康檢查端点
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// 在生產環境中提供靜態文件
+// ===== 靜態文件服務（在 API 路由之後）=====
 if (process.env.NODE_ENV === 'production') {
+  // 提供靜態文件
   app.use(express.static(join(__dirname, 'dist')));
   
   // 所有非 API 路由都返回 index.html（用於 Vue Router）
   app.get('*', (req, res) => {
+    // 確保不會攔截 API 路由（雖然理論上不會發生，因為 API 路由在前面）
     res.sendFile(join(__dirname, 'dist', 'index.html'));
   });
 }
