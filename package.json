@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:pages": "vite build && rm -rf docs && mkdir docs && cp -r dist/* docs/ && cp img/TarotVending-favicon.png docs/",
     "preview": "vite preview"
   },
   "dependencies": {
