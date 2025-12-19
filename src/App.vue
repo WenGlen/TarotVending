@@ -1,6 +1,5 @@
 <script setup>
-  import { ref, computed, watch, nextTick } from 'vue'
-  import { onMounted, onUnmounted } from 'vue'
+  import { ref, computed, watch, onUnmounted } from 'vue'
   import { useSessionStore } from './stores/sessionStore'
   import { machineUIMap } from './config/machineUIMap'
   import MachineActionButton from './components/machine/MachineActionButton.vue'
@@ -28,94 +27,18 @@
   })
 
   import FlowDebugPanel from './components/FlowDebugPanel.vue'
+  import { useResponsiveViewport } from './composables/useResponsiveViewport'
 
 const session = useSessionStore()
 
 /* --------------------
    響應式縮放控制
 -------------------- */
-// 基準寬度（設計稿尺寸）
-const baseWidth = 420
-
-// 視口尺寸
-const viewportWidth = ref(window.innerWidth)
-const viewportHeight = ref(window.innerHeight)
-
-// 容器引用和實際尺寸
-const appContainerRef = ref(null)
-const containerWidth = ref(baseWidth)
-const containerHeight = ref(800)
-
-// 計算縮放比例（取寬高比例的最小值，確保兩個方向都能完整顯示）
-const scale = computed(() => {
-  if (containerWidth.value === 0 || containerHeight.value === 0) return 1
-  const scaleX = viewportWidth.value / containerWidth.value
-  const scaleY = viewportHeight.value / containerHeight.value
-  return Math.min(scaleX, scaleY, 1) // 不超過 1，避免放大
-})
-
-// 更新容器實際尺寸
-function updateContainerSize() {
-  if (appContainerRef.value) {
-    const rect = appContainerRef.value.getBoundingClientRect()
-    const newWidth = rect.width || baseWidth
-    const newHeight = rect.height || 800
-    
-    // 只有當尺寸真的改變時才更新，避免不必要的重新計算
-    if (containerWidth.value !== newWidth || containerHeight.value !== newHeight) {
-      containerWidth.value = newWidth
-      containerHeight.value = newHeight
-    }
-  }
-}
-
-// 更新視口尺寸
-function updateViewportSize() {
-  viewportWidth.value = window.innerWidth
-  viewportHeight.value = window.innerHeight
-  updateContainerSize()
-}
-
-// ResizeObserver 監聽容器尺寸變化
-let resizeObserver = null
-
-// 監聽視窗大小變化
-onMounted(() => {
-  updateViewportSize()
-  
-  // 使用 nextTick 確保 DOM 已渲染
-  nextTick(() => {
-    updateContainerSize()
-    
-    // 使用 ResizeObserver 監聽容器尺寸變化
-    if (appContainerRef.value && window.ResizeObserver) {
-      resizeObserver = new ResizeObserver(() => {
-        updateContainerSize()
-      })
-      resizeObserver.observe(appContainerRef.value)
-    }
-  })
-  
-  // 延遲一下確保 DOM 完全渲染（處理動態內容）
-  setTimeout(() => {
-    updateContainerSize()
-  }, 200)
-  
-  window.addEventListener('resize', updateViewportSize)
-  window.addEventListener('orientationchange', () => {
-    setTimeout(() => {
-      updateViewportSize()
-    }, 200)
-  })
-})
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-  }
-  window.removeEventListener('resize', updateViewportSize)
-  window.removeEventListener('orientationchange', updateViewportSize)
-})
+// 使用 composable 處理所有視窗自適應邏輯
+const {
+  containerRef: appContainerRef,
+  scale
+} = useResponsiveViewport(420, 800)
 
 /* --------------------
    Overlay 控制
@@ -567,6 +490,17 @@ const guideText = computed(() => {
   top: 50%;
   left: 50%;
   transform-origin: center center;
+  
+  /* 安全區域支援（iOS Safari 等）- 設置最小 padding 避免貼邊 */
+  /* 透過 CSS 變數動態設置，預設值為 20px */
+  /* 如果 CSS 變數未設置，直接使用固定值確保一定有 padding */
+  padding-top: var(--safe-area-top, 20px) !important;
+  padding-bottom: var(--safe-area-bottom, 20px) !important;
+  padding-left: var(--safe-area-left, 0px);
+  padding-right: var(--safe-area-right, 0px);
+  
+  /* 確保在安全區域內 */
+  box-sizing: border-box;
 }
 
 .floating-coin {
